@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Santi (Kairoz) · Editor de video para gaming y entretenimiento</title>
+<meta name="description" content="Edito Shorts, clips de stream y videos de gaming y entretenimiento en Premiere y After Effects. Entrega en 1 a 2 días.">
+<meta property="og:title" content="Santi (Kairoz), editor de video">
+<meta property="og:description" content="Shorts, clips de stream y videos de gaming que la gente mira hasta el final.">
+<meta property="og:image" content="gato-banana.jpg">
+<link rel="icon" href="gato-banana.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;800;900&family=Silkscreen&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #14213D;
+    --navy-2: #1B2B4F;
+    --ink: #0D1730;
+    --line: #2A3B63;
+    --paper: #F3F5FA;
+    --muted: #A9B4CC;
+    --yellow: #FFD21F;
+    --red: #F23A3A;
+    --green: #3FAE3A;
+    --radius-s: 6px;
+    --radius-m: 14px;
+    --wrap: 1120px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--navy);
+    color: var(--paper);
+    font: 500 1.0625rem/1.6 "Montserrat", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; border-radius: 4px; }
+  .wrap { width: min(var(--wrap), 100% - 2.5rem); margin-inline: auto; }
+
+  /* ---------- Header ---------- */
+  .top { padding: 1.1rem 0; }
+  .top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .brand { display: flex; align-items: center; gap: .7rem; text-decoration: none; font-weight: 800; }
+  .brand img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; background: #fff; border: 2px solid var(--yellow); }
+  .brand small { display: block; font-weight: 500; color: var(--muted); font-size: .8rem; line-height: 1.2; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+    padding: .85rem 1.4rem; border-radius: 999px; border: 2px solid transparent;
+    font: 800 1rem/1 "Montserrat", sans-serif; text-decoration: none; cursor: pointer;
+    transition: transform .15s ease, background-color .15s ease;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-main { background: var(--yellow); color: var(--navy); }
+  .btn-main:hover { background: #ffe066; }
+  .btn-ghost { border-color: var(--line); color: var(--paper); background: transparent; }
+  .btn-ghost:hover { border-color: var(--muted); }
+  .btn-small { padding: .6rem 1rem; font-size: .9rem; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 3.5rem 0 4rem; }
+  .hero h1 {
+    font-weight: 900; font-size: clamp(2.4rem, 6.4vw, 4.75rem); line-height: 1.02;
+    letter-spacing: -.02em; margin: 0 0 1.4rem; max-width: 15ch;
+  }
+  .hero p.lead { font-size: clamp(1.05rem, 1.6vw, 1.25rem); color: var(--muted); max-width: 52ch; margin: 0 0 1.8rem; }
+  .hero p.lead strong { color: var(--paper); font-weight: 600; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: .8rem; margin-bottom: 3rem; }
+
+  /* The timeline: the one loud element on the page */
+  .timeline {
+    position: relative; background: var(--ink); border: 1px solid var(--line);
+    border-radius: var(--radius-m); padding: .6rem .6rem .8rem; overflow: hidden;
+    --head: 0%;
+  }
+  .tl-bar { display: flex; align-items: center; justify-content: space-between; padding: .2rem .4rem .6rem; }
+  .tl-bar .seq { font-size: .78rem; color: var(--muted); }
+  .tc { font-family: "Silkscreen", monospace; color: var(--yellow); font-size: 1.05rem; letter-spacing: .04em; }
+  .ruler, .track { display: grid; grid-template-columns: 2.6rem 1fr; gap: .4rem; }
+  .ruler .marks {
+    height: 1.3rem; border-bottom: 1px solid var(--line);
+    background: repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px 10%);
+    background-size: 100% 40%; background-repeat: no-repeat; background-position: bottom;
+    display: flex; justify-content: space-between; font-family: "Silkscreen", monospace; font-size: .6rem; color: var(--muted);
+  }
+  .track { margin-top: .35rem; }
+  .track-name {
+    font-family: "Silkscreen", monospace; font-size: .7rem; color: var(--muted);
+    display: grid; place-items: center; background: var(--navy-2); border-radius: var(--radius-s);
+  }
+  .lane { position: relative; display: flex; gap: 3px; height: 46px; }
+  .track.v1 .lane { height: 64px; }
+  .clip {
+    position: relative; height: 100%; border-radius: 4px; overflow: hidden;
+    font-size: .68rem; font-weight: 600; line-height: 1.2; padding: .25rem .4rem; color: var(--navy);
+    white-space: nowrap; text-overflow: ellipsis;
+  }
+  .clip.gap { background: transparent; }
+  .clip.txt { background: var(--yellow); }
+  .clip.fx { background: var(--green); color: #fff; }
+  .clip.meme { background: var(--red); color: #fff; display: flex; align-items: center; gap: .35rem; padding: .2rem; }
+  .clip.meme img { height: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 3px; background: #fff; }
+  .clip.vid {
+    background-color: #2C3E6B; background-size: auto 100%; background-repeat: repeat-x; background-position: left center;
+    border-top: 3px solid #8E7CFF; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.8);
+  }
+  .wave { display: flex; align-items: center; gap: 2px; height: 100%; width: 100%; background: #1E5B3A; border-radius: 4px; padding: 0 3px; overflow: hidden; }
+  .wave i { flex: 1; min-width: 1px; background: #7CE0A0; border-radius: 1px; }
+  .playhead {
+    position: absolute; top: 2.3rem; bottom: .5rem; width: 2px; background: var(--red);
+    left: calc(3rem + .6rem + (100% - 4.2rem) * var(--p, 0));
+    pointer-events: none; box-shadow: 0 0 0 1px rgba(13,23,48,.6);
+  }
+  .playhead::before {
+    content: ""; position: absolute; top: -6px; left: -6px; width: 14px; height: 10px;
+    background: var(--red); clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+
+  /* ---------- Sections ---------- */
+  section { padding: 4.5rem 0; }
+  section + section { border-top: 1px solid var(--line); }
+  h2 { font-weight: 900; font-size: clamp(1.8rem, 3.6vw, 2.6rem); line-height: 1.1; letter-spacing: -.01em; margin: 0 0 .8rem; }
+  .intro { color: var(--muted); max-width: 60ch; margin: 0 0 2.4rem; }
+  h3 { font-weight: 800; font-size: 1.25rem; margin: 2.6rem 0 1.2rem; }
+
+  /* Gallery */
+  .shorts { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 1.4rem 1.1rem; }
+  .longs { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.4rem; }
+  .work figure { margin: 0; }
+  .player {
+    position: relative; width: 100%; border-radius: var(--radius-m); overflow: hidden; background: #000;
+    border: 0; padding: 0; cursor: pointer; display: block; color: #fff;
+  }
+  .shorts .player { aspect-ratio: 9 / 16; }
+  .longs .player { aspect-ratio: 16 / 9; }
+  .player img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s ease; }
+  .player:hover img { transform: scale(1.03); }
+  .player .play {
+    position: absolute; left: 50%; top: 50%; translate: -50% -50%;
+    width: 62px; height: 62px; border-radius: 50%; background: var(--yellow);
+    display: grid; place-items: center; box-shadow: 0 6px 24px rgba(0,0,0,.45);
+  }
+  .player .play::after { content: ""; margin-left: 5px; border-left: 18px solid var(--navy); border-block: 11px solid transparent; }
+  .player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .work figcaption { padding: .8rem .1rem 0; }
+  .work .title { font-weight: 800; font-size: 1rem; line-height: 1.3; margin: 0 0 .3rem; }
+  .work .views { font-family: "Silkscreen", monospace; color: var(--yellow); font-size: .82rem; }
+  .work .note { color: var(--muted); font-size: .9rem; line-height: 1.45; margin: .3rem 0 0; }
+
+  /* Services */
+  .services { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0 3rem; }
+  .services li { padding: 1.2rem 0; border-bottom: 1px solid var(--line); }
+  .services strong { display: block; font-weight: 800; font-size: 1.1rem; margin-bottom: .25rem; }
+  .services span { color: var(--muted); }
+  .tools { margin-top: 2rem; color: var(--muted); }
+  .tools b { color: var(--paper); font-weight: 600; }
+
+  /* Process: a real sequence, so it gets numbers */
+  .steps { list-style: none; counter-reset: s; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2rem; }
+  .steps li { counter-increment: s; }
+  .steps li::before {
+    content: counter(s); display: grid; place-items: center; width: 2.6rem; height: 2.6rem; margin-bottom: .9rem;
+    background: var(--yellow); color: var(--navy); font: 400 1.1rem "Silkscreen", monospace; border-radius: var(--radius-s);
+  }
+  .steps strong { display: block; font-weight: 800; font-size: 1.1rem; margin-bottom: .3rem; }
+  .steps span { color: var(--muted); }
+  .price { margin-top: 2.6rem; padding: 1.4rem 1.6rem; border-left: 4px solid var(--yellow); background: var(--navy-2); border-radius: 0 var(--radius-m) var(--radius-m) 0; max-width: 70ch; }
+  .price p { margin: 0; }
+  .price p + p { margin-top: .6rem; color: var(--muted); }
+
+  /* Contact */
+  .contact { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 3rem; align-items: start; }
+  .sticker {
+    width: 150px; background: #fff; padding: 8px; border-radius: 18px; rotate: -5deg;
+    box-shadow: 0 10px 30px rgba(0,0,0,.35); margin-bottom: 1.6rem;
+  }
+  .sticker img { border-radius: 12px; }
+  .contact .direct { margin-top: 1.4rem; color: var(--muted); font-size: .95rem; }
+  .contact .direct a { color: var(--yellow); font-weight: 600; }
+  form { background: var(--navy-2); border: 1px solid var(--line); border-radius: var(--radius-m); padding: 1.6rem; display: grid; gap: 1rem; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  label { display: grid; gap: .35rem; font-weight: 600; font-size: .92rem; }
+  label .opt { color: var(--muted); font-weight: 500; }
+  input, select, textarea {
+    font: 500 1rem "Montserrat", sans-serif; color: var(--paper); background: var(--ink);
+    border: 1px solid var(--line); border-radius: 10px; padding: .75rem .85rem; width: 100%;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--yellow); }
+  textarea { min-height: 7rem; resize: vertical; }
+  .form-help { font-size: .85rem; color: var(--muted); margin: 0; }
+  .form-msg { margin: 0; font-weight: 600; color: var(--yellow); min-height: 1.4em; }
+
+  footer { padding: 2rem 0 3rem; color: var(--muted); font-size: .9rem; border-top: 1px solid var(--line); }
+  footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; }
+
+  @media (max-width: 820px) {
+    .contact { grid-template-columns: 1fr; }
+    .row { grid-template-columns: 1fr; }
+    .hero { padding-top: 2rem; }
+    .lane .hide-s { display: none; }
+  }
+  @media (max-width: 480px) {
+    .shorts { grid-template-columns: repeat(2, 1fr); gap: 1.2rem .8rem; }
+    .work .note { display: none; }
+    .top .btn { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .player img, .btn { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#">
+      <img src="gato-banana.jpg" alt="">
+      <span>Santi (Kairoz)<small>Editor de video</small></span>
+    </a>
+    <a class="btn btn-main btn-small" href="#contacto">Contame tu proyecto</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero" style="border-top:0">
+    <div class="wrap">
+      <h1>Edito videos que la gente mira hasta el final.</h1>
+      <p class="lead">
+        Gaming, clips de stream y entretenimiento, editados en Premiere y After Effects y
+        <strong>entregados en 1 a 2 días</strong>. Mis propios Shorts suman
+        <strong id="stat-views">más de 1,4 millones de vistas</strong>.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-main" href="#contacto">Contame tu proyecto</a>
+        <a class="btn btn-ghost" href="#trabajos">Ver mis ediciones</a>
+      </div>
+
+      <div class="timeline" id="timeline" aria-hidden="true">
+        <div class="tl-bar">
+          <span class="seq">tu_proximo_video.prproj</span>
+          <span class="tc" id="tc">00:00:00:00</span>
+        </div>
+        <div class="ruler"><span></span><div class="marks"><span>00:00</span><span>00:10</span><span>00:20</span><span>00:30</span></div></div>
+        <div class="track"><span class="track-name">V3</span>
+          <div class="lane">
+            <div class="clip gap" style="flex:9"></div>
+            <div class="clip meme" style="flex:12"><img src="gato-banana.jpg" alt="">meme.jpg</div>
+            <div class="clip gap" style="flex:30"></div>
+            <div class="clip fx" style="flex:10">Shake</div>
+            <div class="clip gap" style="flex:22"></div>
+            <div class="clip fx hide-s" style="flex:10">Zoom</div>
+            <div class="clip gap" style="flex:7"></div>
+          </div>
+        </div>
+        <div class="track"><span class="track-name">V2</span>
+          <div class="lane">
+            <div class="clip txt" style="flex:16">¿SABÍAS ESTO?</div>
+            <div class="clip gap" style="flex:8"></div>
+            <div class="clip txt" style="flex:20">Subtítulos</div>
+            <div class="clip gap" style="flex:6"></div>
+            <div class="clip txt" style="flex:24">Subtítulos</div>
+            <div class="clip gap" style="flex:4"></div>
+            <div class="clip txt hide-s" style="flex:22">Suscribite</div>
+          </div>
+        </div>
+        <div class="track v1"><span class="track-name">V1</span>
+          <div class="lane" id="v1"></div>
+        </div>
+        <div class="track"><span class="track-name">A1</span>
+          <div class="lane"><div class="wave" id="wave"></div></div>
+        </div>
+        <div class="playhead" id="playhead"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="trabajos">
+    <div class="wrap">
+      <h2>Ediciones que ya funcionaron</h2>
+      <p class="intro">Todo esto lo edité para mi canal de Minecraft, <a href="https://www.youtube.com/@kairozoficial" target="_blank" rel="noopener">@kairozoficial</a>. Tocá cualquier video para verlo acá mismo.</p>
+
+      <h3>Shorts y verticales</h3>
+      <div class="shorts work" id="shorts"></div>
+
+      <h3>Videos largos</h3>
+      <div class="longs work" id="longs"></div>
+    </div>
+  </section>
+
+  <section id="servicios">
+    <div class="wrap">
+      <h2>Lo que puedo editarte</h2>
+      <p class="intro">Me muevo en varios formatos, pero donde más rindo es en entretenimiento: ritmo rápido, humor y que no haya un segundo de relleno.</p>
+      <ul class="services">
+        <li><strong>Shorts, TikToks y Reels</strong><span>Gancho en el primer segundo, subtítulos, zooms, memes y efectos de sonido.</span></li>
+        <li><strong>Clips de stream</strong><span>Busco los mejores momentos de tus directos y los paso a vertical, listos para subir.</span></li>
+        <li><strong>Videos largos de gaming</strong><span>Cortes dinámicos y humor para que nadie adelante el video.</span></li>
+        <li><strong>Marca personal</strong><span>Videos de cámara a la cara con subtítulos, gráficos y un estilo reconocible.</span></li>
+        <li><strong>Motion graphics</strong><span>Títulos, gráficos y animaciones hechos en After Effects.</span></li>
+        <li><strong>Efectos con IA</strong><span>Subtítulos automáticos, recortes de fondo, limpieza de audio y efectos que antes llevaban horas.</span></li>
+      </ul>
+      <p class="tools">Trabajo con <b>Premiere Pro</b>, <b>After Effects</b> y herramientas de <b>IA</b>.</p>
+    </div>
+  </section>
+
+  <section id="proceso">
+    <div class="wrap">
+      <h2>Cómo trabajamos</h2>
+      <p class="intro">Sin vueltas: me pasás el material y en uno o dos días tenés el video.</p>
+      <ol class="steps">
+        <li><strong>Me mandás el material</strong><span>Por Drive, WeTransfer o lo que uses, con algún video de referencia si tenés uno.</span></li>
+        <li><strong>Te entrego el primer corte</strong><span>En 1 a 2 días como máximo.</span></li>
+        <li><strong>Ajustamos lo que quieras</strong><span>Cambio lo que haga falta hasta que esté listo para subir.</span></li>
+      </ol>
+      <div class="price">
+        <p><strong>Me adapto a tu presupuesto.</strong> Contame cuántos videos necesitás y armamos algo que te cierre.</p>
+        <p id="free-sample">Estoy sumando mis primeros clientes, así que la primera prueba (un clip de hasta 30 segundos con tu material) va sin costo.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="contacto">
+    <div class="wrap contact">
+      <div>
+        <div class="sticker"><img src="gato-banana.jpg" alt="Gato con disfraz de banana, la mascota del canal"></div>
+        <h2>Contame qué tenés en mente</h2>
+        <p class="intro" style="margin-bottom:0">Completá esto y te respondo por donde prefieras: mail, WhatsApp, Instagram o Discord.</p>
+        <p class="direct">¿Preferís escribirme directo? <a id="mail-link" href="#">velezsantiago67@gmail.com</a></p>
+      </div>
+
+      <form id="form" novalidate>
+        <div class="row">
+          <label>Tu nombre
+            <input name="nombre" autocomplete="name" required>
+          </label>
+          <label>Tu canal o perfil
+            <input name="canal" placeholder="Link o @usuario" required>
+          </label>
+        </div>
+        <label>¿Qué necesitás editar?
+          <select name="tipo">
+            <option>Shorts, TikToks o Reels</option>
+            <option>Clips de stream</option>
+            <option>Videos largos</option>
+            <option>Marca personal</option>
+            <option>Motion graphics</option>
+            <option>Otra cosa</option>
+          </select>
+        </label>
+        <div class="row">
+          <label>¿Por dónde te escribo?
+            <select name="medio">
+              <option>Mail</option>
+              <option>WhatsApp</option>
+              <option>Instagram</option>
+              <option>Discord</option>
+              <option>Telegram</option>
+              <option>X (Twitter)</option>
+            </select>
+          </label>
+          <label>Tu usuario o número
+            <input name="contacto" placeholder="@usuario, mail o número" required>
+          </label>
+        </div>
+        <label><span>Presupuesto <span class="opt">(opcional)</span></span>
+          <input name="presupuesto" placeholder="Por video o por mes">
+        </label>
+        <label><span>Contame un poco más <span class="opt">(opcional)</span></span>
+          <textarea name="mensaje" placeholder="Cuántos videos por semana, estilo que te gusta, fecha..."></textarea>
+        </label>
+        <button class="btn btn-main" type="submit">Enviar mensaje</button>
+        <p class="form-help">Se abre tu app de mail con el mensaje ya escrito; solo tenés que tocar enviar.</p>
+        <p class="form-msg" id="form-msg" role="status"></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Santiago Vélez · editor de video</span>
+    <a href="https://www.youtube.com/@kairozoficial" target="_blank" rel="noopener">YouTube @kairozoficial</a>
+  </div>
+</footer>
+
+<script>
+/* ============ EDITÁ ACÁ ============ */
+const CONFIG = {
+  email: "velezsantiago67@gmail.com",
+  muestraGratis: true, // false = oculta la frase de la primera prueba sin costo
+};
+
+// Shorts: id del video de YouTube, título, vistas (texto) y qué hiciste
+const SHORTS = [
+  { id: "3IZwgg9ukSA", title: "Cuál ganó la Mob Vote 2017", views: "41.500 vistas", note: "Historia contada en 26 segundos, con texto en pantalla y ritmo rápido." },
+  { id: "iB5rnXhGS0Y", title: "El Golem de Cobre vuelve", views: "37.000 vistas", note: "Noticia del juego explicada en menos de 20 segundos." },
+  { id: "4zXHOFR0Ay4", title: "Skins pay to win en Minecraft", views: "29.500 vistas", note: "Humor con remates y efectos de sonido." },
+  { id: "p9uAWIazQpw", title: "Adivina el crafteo", views: "24.400 vistas · 55 comentarios", note: "Formato de serie pensado para que la gente comente." },
+  { id: "XpAnF5EhdCI", title: "Qué significan los símbolos de Minecraft", views: "19.800 vistas · 1.479 me gusta", note: "Curiosidades con gráficos y zooms." },
+  { id: "oVtd-ndaBV4", title: "La evolución de Minecraft (2009-2024)", views: "Motion graphics", note: "Más de 90 gráficos animados en After Effects." },
+];
+
+// Videos largos (16:9)
+const LONGS = [
+  { id: "9WY0_vLMMGQ", title: "Jugué Minecraft todo en tercera persona", views: "Video de 20 minutos", note: "Gameplay largo editado para que no pierda ritmo." },
+  { id: "StZ_No2ONEQ", title: "Cada muerte = -10 FPS en Minecraft", views: "Reto de gameplay", note: "Desafío con cortes, memes y contador en pantalla." },
+];
+/* ================================== */
+
+const thumb = (id, big) => `https://i.ytimg.com/vi/${id}/${big ? "maxresdefault" : "hqdefault"}.jpg`;
+
+function card(v, vertical) {
+  const fig = document.createElement("figure");
+  const btn = document.createElement("button");
+  btn.className = "player";
+  btn.type = "button";
+  btn.setAttribute("aria-label", "Reproducir: " + v.title);
+  const img = document.createElement("img");
+  img.loading = "lazy";
+  img.alt = "";
+  img.src = thumb(v.id, !vertical);
+  img.onerror = () => { if (!img.dataset.fb) { img.dataset.fb = 1; img.src = thumb(v.id, false); } };
+  const play = document.createElement("span");
+  play.className = "play";
+  btn.append(img, play);
+  btn.addEventListener("click", () => {
+    const f = document.createElement("iframe");
+    f.src = `https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&rel=0&playsinline=1`;
+    f.title = v.title;
+    f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+    f.allowFullscreen = true;
+    btn.replaceChildren(f);
+    btn.style.cursor = "default";
+  }, { once: true });
+  const cap = document.createElement("figcaption");
+  cap.innerHTML = `<p class="title"></p><span class="views"></span><p class="note"></p>`;
+  cap.querySelector(".title").textContent = v.title;
+  cap.querySelector(".views").textContent = v.views;
+  cap.querySelector(".note").textContent = v.note;
+  fig.append(btn, cap);
+  return fig;
+}
+document.getElementById("shorts").append(...SHORTS.map(v => card(v, true)));
+document.getElementById("longs").append(...LONGS.map(v => card(v, false)));
+
+if (!CONFIG.muestraGratis) document.getElementById("free-sample").remove();
+const mailLink = document.getElementById("mail-link");
+mailLink.textContent = CONFIG.email;
+mailLink.href = "mailto:" + CONFIG.email;
+
+/* ---- Timeline: clips with real thumbnails, waveform and one playhead sweep ---- */
+const v1 = document.getElementById("v1");
+[[SHORTS[0], 22], [SHORTS[2], 18], [SHORTS[4], 26], [SHORTS[1], 20], [SHORTS[3], 14]].forEach(([v, flex], i) => {
+  const c = document.createElement("div");
+  c.className = "clip vid" + (i === 4 ? " hide-s" : "");
+  c.style.flex = flex;
+  c.style.backgroundImage = `url(${thumb(v.id, false)})`;
+  c.textContent = v.id + ".mp4";
+  v1.append(c);
+});
+const wave = document.getElementById("wave");
+let seed = 7;
+for (let i = 0; i < 140; i++) {
+  seed = (seed * 9301 + 49297) % 233280;
+  const r = seed / 233280;
+  const bar = document.createElement("i");
+  bar.style.height = Math.round(18 + r * 70 + Math.sin(i / 6) * 10) + "%";
+  wave.append(bar);
+}
+
+const tl = document.getElementById("timeline");
+const tc = document.getElementById("tc");
+const END = 0.72;             // where the playhead stops (0-1)
+const TOTAL_SECONDS = 30;     // the ruler shows 30 seconds
+function setHead(p) {
+  tl.style.setProperty("--p", p);
+  const t = p * TOTAL_SECONDS;
+  const s = Math.floor(t), f = Math.floor((t - s) * 30);
+  tc.textContent = `00:00:${String(s).padStart(2, "0")}:${String(f).padStart(2, "0")}`;
+}
+if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  setHead(END);
+} else {
+  const start = performance.now(), dur = 2600;
+  const ease = x => 1 - Math.pow(1 - x, 3);
+  (function step(now) {
+    const k = Math.min(1, (now - start) / dur);
+    setHead(END * ease(k));
+    if (k < 1) requestAnimationFrame(step);
+  })(start);
+}
+
+/* ---- Contact form: builds an email with everything already written ---- */
+const form = document.getElementById("form");
+const msg = document.getElementById("form-msg");
+form.addEventListener("submit", e => {
+  e.preventDefault();
+  const d = Object.fromEntries(new FormData(form));
+  const missing = [];
+  if (!d.nombre.trim()) missing.push("tu nombre");
+  if (!d.canal.trim()) missing.push("tu canal o perfil");
+  if (!d.contacto.trim()) missing.push("tu usuario o número");
+  if (missing.length) {
+    msg.textContent = "Falta completar: " + missing.join(", ") + ".";
+    form.querySelector(`[name="${!d.nombre.trim() ? "nombre" : !d.canal.trim() ? "canal" : "contacto"}"]`).focus();
+    return;
+  }
+  const subject = `Edición de video: ${d.tipo} (${d.nombre})`;
+  const body = [
+    `Hola Santi, soy ${d.nombre}.`,
+    ``,
+    `Canal / perfil: ${d.canal}`,
+    `Necesito: ${d.tipo}`,
+    `Presupuesto: ${d.presupuesto || "a charlar"}`,
+    `Escribime por: ${d.medio} (${d.contacto})`,
+    ``,
+    d.mensaje || "",
+  ].join("\n");
+  location.href = `mailto:${CONFIG.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  msg.textContent = "Listo, se abrió tu mail con el mensaje. Si no se abrió, escribime a " + CONFIG.email + ".";
+});
+</script>
+</body>
+</html>
